@@ -32,3 +32,15 @@ def test_make_file_ancient():
     tmp_file = NamedTemporaryFile(dir=tmp_folder)
     util.make_file_ancient(tmp_file.name)
     assert os.stat(tmp_file.name).st_atime == 0.0
+
+def test_make_file_brand_new():
+    """
+    make_file_brand_new should set a file's atime to now.
+    """
+    tmp_folder = mkdtemp()
+    old_file = NamedTemporaryFile(dir=tmp_folder)
+    sleep(1)
+    new_file = NamedTemporaryFile(dir=tmp_folder)
+    sleep(1)
+    util.make_file_brand_new(old_file.name)
+    assert os.stat(old_file.name).st_atime < os.stat(new_file.name)

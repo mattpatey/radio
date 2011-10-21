@@ -18,3 +18,9 @@ def make_file_ancient(path):
     """
     ancient_times = (0, 0)
     os.utime(path, ancient_times)
+
+def make_file_brand_new(path):
+    """
+    Set a file's atime to now.
+    """
+    os.utime(path, None)
