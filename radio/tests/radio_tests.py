@@ -6,9 +6,15 @@ from tempfile import (
     NamedTemporaryFile,
     )
 
-from time import sleep
+from time import (
+    sleep,
+    time,
+    )
 
-from radio import util
+from radio import (
+    player,
+    util,
+    )
 
 
 def test_get_oldest_file():
@@ -44,3 +50,16 @@ def test_make_file_brand_new():
     sleep(1)
     util.make_file_brand_new(old_file.name)
     assert os.stat(old_file.name).st_atime < os.stat(new_file.name)
+
+def test_get_file_to_play():
+    """
+    I expect get_file_to_play to return the oldest file in a folder
+    and then update the file's atime to now.
+    """
+    tmp_folder = mkdtemp()
+    old_file = NamedTemporaryFile(dir=tmp_folder)
+    sleep(1)
+    new_file = NamedTemporaryFile(dir=tmp_folder)
+    assert player.get_file_to_play(tmp_folder) == old_file.name
+    assert player.get_file_to_play(tmp_folder) == new_file.name
+
