@@ -22,7 +22,7 @@ def get_files_recursively(path):
         files_with_paths = [os.path.join(files_in_dir[0], f) for f in files_in_dir[2]]
         file_names = file_names + files_with_paths
 
-    return file_names
+    return sorted(file_names, key=lambda x: os.stat(x).st_mtime)
 
 def make_file_ancient(path):
     """

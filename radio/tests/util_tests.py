@@ -25,23 +25,29 @@ def test_get_oldest_file():
     newest_file = NamedTemporaryFile(dir=tmp_folder)
     assert util.get_oldest_file(tmp_folder) == old_file.name
 
-def test_get_files_recursively():
+def test_get_all_files():
     """
-    I expect all files in a folder to be returned as a flat list.
+    I expect all files in a folder to be returned as a flat list,
+    sorted by mtime.
     """
+    def make_files(path):
+        files = list()
+        for x in xrange(3):
+            files.append(NamedTemporaryFile(dir=path))
+            sleep(1)
+        return files
+    
     first_level = mkdtemp()
-    first_level_files = [NamedTemporaryFile(dir=first_level)
-                         for x in xrange(3)]
+    first_level_files = make_files(first_level)
     second_level = mkdtemp(dir=first_level)
-    second_level_files = [NamedTemporaryFile(dir=second_level)
-                          for x in xrange(3)]
+    second_level_files = make_files(second_level)
     third_level = mkdtemp(dir=second_level)
-    third_level_files = [NamedTemporaryFile(dir=third_level)
-                          for x in xrange(3)]
+    third_level_files = make_files(third_level)
+    
     all_files = first_level_files + second_level_files + third_level_files
-    all_file_names = [f.name for f in all_files]
-
-    assert set(util.get_files_recursively(first_level)) == set(all_file_names)
+    all_file_names = sorted([f.name for f in all_files],
+                            key=lambda x: os.stat(x).st_mtime)
+    assert util.get_files_recursively(first_level) == all_file_names
 
 def test_make_file_ancient():
     """
