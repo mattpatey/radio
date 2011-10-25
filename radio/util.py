@@ -1,6 +1,8 @@
 
 import os
 
+import random
+
 
 def get_oldest_file(path, recursive=True):
     """
@@ -11,6 +13,14 @@ def get_oldest_file(path, recursive=True):
     files_sorted_by_mtime = sorted(files_with_mtime, key=lambda x: x[1])
 
     return files_sorted_by_mtime[0][0]
+
+def get_random_file(path):
+    """
+    Return a random file from the given path.
+    """
+    files = get_files(path)
+
+    return random.choice(files)
 
 def get_files(path, recursive=True):
     """

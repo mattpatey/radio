@@ -21,9 +21,21 @@ def test_get_oldest_file():
     """
     tmp_folder = mkdtemp()
     old_file = NamedTemporaryFile(dir=tmp_folder)
-    sleep(0.01)
+    sleep(1)
     newest_file = NamedTemporaryFile(dir=tmp_folder)
+
     assert util.get_oldest_file(tmp_folder) == old_file.name
+
+def test_get_random_file():
+    """
+    Get a random file from a folder.
+    """
+    tmp_folder = mkdtemp()
+    old_file = NamedTemporaryFile(dir=tmp_folder)
+    sleep(1)
+    newest_file = NamedTemporaryFile(dir=tmp_folder)
+
+    assert util.get_random_file(tmp_folder) in [old_file.name, newest_file.name]
 
 def test_get_files():
     """
@@ -33,7 +45,7 @@ def test_get_files():
         files = list()
         for x in xrange(3):
             files.append(NamedTemporaryFile(dir=path))
-            sleep(0.01)
+            sleep(1)
         return files
 
     first_level = mkdtemp()
@@ -56,7 +68,7 @@ def test_get_files_recursively():
         files = list()
         for x in xrange(3):
             files.append(NamedTemporaryFile(dir=path))
-            sleep(0.01)
+            sleep(1)
         return files
 
     first_level = mkdtemp()
@@ -69,6 +81,7 @@ def test_get_files_recursively():
     all_files = first_level_files + second_level_files + third_level_files
     all_file_names = sorted([f.name for f in all_files],
                             key=lambda x: os.stat(x).st_mtime)
+
     assert util.get_files(first_level) == all_file_names
 
 def test_follow_symlinks():
@@ -79,7 +92,7 @@ def test_follow_symlinks():
         files = list()
         for x in xrange(10):
             files.append(NamedTemporaryFile(dir=path))
-            sleep(0.01)
+            sleep(1)
         return files
     original = mkdtemp()
     files = make_files(original)
@@ -110,8 +123,8 @@ def test_make_file_brand_new():
     """
     tmp_folder = mkdtemp()
     old_file = NamedTemporaryFile(dir=tmp_folder)
-    sleep(0.01)
+    sleep(1)
     new_file = NamedTemporaryFile(dir=tmp_folder)
-    sleep(0.01)
+    sleep(1)
     util.make_file_brand_new(old_file.name)
     assert os.stat(old_file.name).st_mtime < os.stat(new_file.name)
