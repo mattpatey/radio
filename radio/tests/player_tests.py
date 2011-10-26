@@ -50,11 +50,11 @@ def test_play_playlist():
     linked_files = sorted(linked_files, key=lambda x: os.stat(x).st_mtime)
 
     assert player.get_file_to_play(linked) == linked_files[0]
-    sleep(0.01)
+    sleep(1)
     assert player.get_file_to_play(linked) == linked_files[1]
-    sleep(0.01)
+    sleep(1)
     assert player.get_file_to_play(linked) == linked_files[2]
-    sleep(0.01)
+    sleep(1)
     assert player.get_file_to_play(linked) == linked_files[3]
-    sleep(0.01)
+    sleep(1)
     assert player.get_file_to_play(linked) == linked_files[0]

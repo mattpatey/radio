@@ -4,6 +4,9 @@ import os
 import random
 
 
+FILES_TO_IGNORE = ['playlist']
+
+
 def get_oldest_file(path, recursive=True):
     """
     Return the oldest in a given path.
@@ -30,7 +33,8 @@ def get_files(path, recursive=True):
     file_names = list()
     if recursive:
         for files_in_dir in files_and_dirs:
-            files_with_paths = [os.path.join(files_in_dir[0], f) for f in files_in_dir[2]]
+            files_with_paths = [os.path.join(files_in_dir[0], f)
+                                for f in files_in_dir[2] if f not in FILES_TO_IGNORE]
             file_names = file_names + files_with_paths
     else:
         for root, dirs, files in files_and_dirs:
@@ -51,3 +55,18 @@ def make_file_brand_new(path):
     Set a file's atime to now.
     """
     os.utime(path, None)
+
+def make_playlist(path):
+    """
+    Read a playlist file and sort the files within the directory
+    accordingly.
+
+    Playlist entries are expected to be relative.
+    """
+    order = list()
+    with open(os.path.join(path, 'playlist'), 'r') as playlist:
+        order = [f.rstrip('\n') for f in playlist.readlines()]
+    for i, file_name in enumerate(order):
+        full_path = os.path.join(path, file_name)
+        atime = os.stat(full_path).st_atime
+        os.utime(full_path, (atime, i))

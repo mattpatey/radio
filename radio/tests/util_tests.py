@@ -59,6 +59,13 @@ def test_get_files():
 
     assert util.get_files(first_level, recursive=False) == all_file_names
 
+def test_get_files_ignores_files():
+    tmp_folder = mkdtemp()
+    music_file = NamedTemporaryFile(dir=tmp_folder)
+    with open(os.path.join(tmp_folder, 'playlist'), 'w'):
+        assert 2 == len(os.listdir(tmp_folder))
+        assert 1 == len(util.get_files(tmp_folder))
+
 def test_get_files_recursively():
     """
     I expect all files in a folder to be returned as a flat list,
@@ -128,3 +135,37 @@ def test_make_file_brand_new():
     sleep(1)
     util.make_file_brand_new(old_file.name)
     assert os.stat(old_file.name).st_mtime < os.stat(new_file.name)
+
+def test_make_playlist():
+    """
+    A playlist consists of files sorted by an input file.
+    """
+    tmp_folder = mkdtemp()
+    files = list()
+    for x in xrange(6):
+        files.append(NamedTemporaryFile(dir=tmp_folder, suffix='.mp3'))
+    with open(os.path.join(tmp_folder, 'playlist'), 'w') as playlist_file:
+        playlist_contents = """\
+%s
+%s
+%s
+%s
+%s
+%s
+""" % (files[2].name,
+       files[1].name,
+       files[4].name,
+       files[0].name,
+       files[3].name,
+       files[5].name,)
+        playlist_file.write(playlist_contents)
+    files_by_mtime = [
+        files[2].name,
+        files[1].name,
+        files[4].name,
+        files[0].name,
+        files[3].name,
+        files[5].name,]
+    util.make_playlist(tmp_folder)
+
+    assert files_by_mtime == util.get_files(tmp_folder)
