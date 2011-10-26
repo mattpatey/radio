@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
+import ConfigParser
+
 from optparse import OptionParser
+
+import os
 
 import util
 
@@ -18,6 +22,9 @@ def get_file_to_play(path, random=False):
 
 
 if __name__ == '__main__':
+    config = ConfigParser.ConfigParser()
+    config.read(os.path.expanduser('/home/djtanner/.python_radio'))
+
     parser = OptionParser()
     parser.add_option(
         '-p',
@@ -35,7 +42,25 @@ if __name__ == '__main__':
         help="Don't repeat the playlist after it has been played through once."
         )
     options, args = parser.parse_args()
+    music_library = config.get('general', 'music_lib')
 
-    playlist = options.playlist or '/home/djtanner/radio/playlists/test'
+    if not music_library:
+        print """\
+Please set 'music_lib' in the 'general' section of ~/.python_radio to
+the path where your music lives."""
+        sys.exit(1)
+
+    playlists = config.get('general', 'playlists')
+
+    if not playlists:
+        print """\
+Please set 'playlists' in the 'general' section of ~/.python_radio to
+the path where your playlists live."""
+
+
+    if options.playlist:
+        playlist = os.path.join(playlists, options.playlist)
+    else:
+        playlist = music_library
 
     print get_file_to_play(playlist, random=options.shuffle)
