@@ -27,7 +27,7 @@ def get_random_file(path):
 
 def get_files(path, recursive=True):
     """
-    Return files found in a given path.
+    Return files found in a given path sorted by mtime.
     """
     files_and_dirs = os.walk(path, followlinks=True)
     file_names = list()
@@ -56,7 +56,7 @@ def make_file_brand_new(path):
     """
     os.utime(path, None)
 
-def make_playlist(path):
+def set_playlist_mtimes(path):
     """
     Read a playlist file and sort the files within the directory
     accordingly.
@@ -70,3 +70,18 @@ def make_playlist(path):
         full_path = os.path.join(path, file_name)
         atime = os.stat(full_path).st_atime
         os.utime(full_path, (atime, i))
+
+def generate_playlist(path):
+    """
+    Look for a playlist file in path and generate symbolic links in
+    the same directory as the playlist file.
+    """
+    files_to_link = list()
+    with open(os.path.join(path, 'playlist'), 'r') as playlist:
+        files_to_link = [f.rstrip('\n') for f in playlist.readlines()]
+
+    for i, f in enumerate(files_to_link):
+        file_name = f.split('/')[-1]
+        os.symlink(f, os.path.join(path, file_name))
+        atime = os.stat(f).st_atime
+        os.utime(f, (atime, i))

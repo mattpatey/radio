@@ -136,7 +136,7 @@ def test_make_file_brand_new():
     util.make_file_brand_new(old_file.name)
     assert os.stat(old_file.name).st_mtime < os.stat(new_file.name)
 
-def test_make_playlist():
+def test_set_playlist_with_mtime():
     """
     A playlist consists of files sorted by an input file.
     """
@@ -166,6 +166,43 @@ def test_make_playlist():
         files[0].name,
         files[3].name,
         files[5].name,]
-    util.make_playlist(tmp_folder)
+    util.set_playlist_mtimes(tmp_folder)
 
     assert files_by_mtime == util.get_files(tmp_folder)
+
+def test_generate_playlist():
+    """
+    Make symbolic links from an input file.
+    """
+    original_folder = mkdtemp()
+    original_files = list()
+    for x in xrange(6):
+        original_files.append(NamedTemporaryFile(dir=original_folder, suffix='.mp3'))
+    playlist_folder = mkdtemp()
+    with open(os.path.join(playlist_folder, 'playlist'), 'w') as playlist_file:
+        playlist_contents = """\
+%s
+%s
+%s
+%s
+%s
+%s
+""" % (original_files[2].name,
+       original_files[1].name,
+       original_files[4].name,
+       original_files[0].name,
+       original_files[3].name,
+       original_files[5].name,)
+        playlist_file.write(playlist_contents)
+    util.generate_playlist(playlist_folder)
+    sorted_files = [
+        original_files[2].name,
+        original_files[1].name,
+        original_files[4].name,
+        original_files[0].name,
+        original_files[3].name,
+        original_files[5].name,]
+    expected_files = [f.split('/')[-1] for f in sorted_files]
+    linked_files = [f.split('/')[-1] for f in util.get_files(playlist_folder)]
+
+    assert expected_files == linked_files
